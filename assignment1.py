@@ -25,7 +25,7 @@ validY = trainY[0:5000]
 
 trainX = trainX[5000:]
 trainY = trainY[5000:]
-
+#%%
 ''' Create the NN-model '''
 model = models.Sequential()
 
@@ -59,6 +59,7 @@ model.compile(optimizer=opt,
               loss='categorical_crossentropy',
               metrics=(['accuracy']))
 
+#%%
 ''' Train the model '''
 # Data augmentation
 idg = ImageDataGenerator(width_shift_range=0.1, 
