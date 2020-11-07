@@ -24,6 +24,7 @@ def transform_labels(labels):
     return new_labels
 
 #%%
+import time
 start = time.time()
 images = []
 directory = 'train/train/'

@@ -77,6 +77,7 @@ history = model.fit_generator(itd,
                               validation_data=(validX, validY),
                               verbose=1)
 
+#%%
 ''' Plot model's performance statistics '''
 plt.figure(figsize=(10,10))
 # Plot model's accuracy information based on epochs
