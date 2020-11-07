@@ -263,3 +263,17 @@ print("Accuracy using model.predict: {}".format(acc))
 
 #%% Mallin tallennus
 model.save("saved_models/<MALLIN NIMI>")
+#%% Mallin ja testidatan nouto (windows)
+model = tf.keras.models.load_model("C:/Users/joona/OneDrive - TUNI.fi/PRML/Assignments/saved_models/cnn_model - 70-30 - valAcc0.994")
+
+win_root = r'C:/Users/joona/OneDrive - TUNI.fi/PRML/Assignments/DATA.ML.200_Assignment1/'
+test_data = np.load(win_root + 'test_data.npy').astype("float32") / 255.0
+test_data = np.expand_dims(test_data, axis=3)
+#%% Testidatan muokkaus ja ennustus
+y_pred = np.argmax(model.predict(test_data), axis=1)
+pred_labels = y_pred+np.ones(y_pred.shape, dtype=int) 
+#%% kilpailutiedoston muodostaminen
+with open("sample_submission.csv", "w") as fp: 
+    fp.write("Id,Category\n") 
+    for idx in range(10000): 
+        fp.write(f"{idx:05},{pred_labels[idx]}\n") 
