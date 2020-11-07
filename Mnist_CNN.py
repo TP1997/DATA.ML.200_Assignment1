@@ -140,6 +140,40 @@ model.add(BatchNormalization())
 model.add(Flatten())
 model.add(Dropout(0.4))
 model.add(Dense(10, activation='softmax'))
+
+#%% Model 4 
+dropout = 0.17
+starting_filters = 16 
+kernel = (3, 3)
+model = Sequential()
+
+model.add(Conv2D(starting_filters, kernel_size=kernel, activation='relu', 
+                 padding="same", kernel_initializer='he_uniform'))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(BatchNormalization())
+model.add(GaussianDropout(dropout * 0.4))
+
+model.add(Conv2D(2*starting_filters, kernel_size=kernel, activation='relu',
+                 padding="same", kernel_initializer='he_uniform'))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(BatchNormalization())
+model.add(GaussianDropout(dropout * 0.6))
+
+model.add(Conv2D(4*starting_filters, kernel_size=kernel, activation='relu', 
+                 padding="same", kernel_initializer='he_uniform'))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(BatchNormalization())
+model.add(GaussianDropout(dropout * 0.8))
+
+model.add(Flatten())
+model.add(Dense(8*starting_filters, activation='relu', kernel_initializer='he_uniform'))
+model.add(BatchNormalization())
+model.add(GaussianDropout(dropout))
+model.add(Dense(10, activation='softmax'))
+
 #%% Fitting
 epochs = 100
 batch_size = 128
@@ -226,3 +260,6 @@ predY = np.argmax(model.predict(testX, verbose=2), axis=1)
 testY = np.argmax(testY_input, axis=1)
 acc = np.sum(predY == testY) / testY.shape[0]
 print("Accuracy using model.predict: {}".format(acc))
+
+#%% Mallin tallennus
+model.save("saved_models/<MALLIN NIMI>")
