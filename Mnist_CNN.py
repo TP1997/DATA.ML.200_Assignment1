@@ -40,18 +40,23 @@ for i in range(0, len(trainY)):
     label = int(trainY[i]-1) # Vähennä 1, koska datan numerot 1-10 labeloidaan välille 0-9.
     trainY_input[i][label] = 1
 
+
+# Muodostetaan 70-20-10 train-valid-test, joiden jakaumat vastaavat alkuperäisen
+# joukon jakaumaa (stratify).
 # Harjoitus-validointi split
 trainX, validX, trainY_input, validY_input = train_test_split(trainX, 
                                                               trainY_input, 
                                                               test_size=0.3,
-                                                              random_state=1)
+                                                              random_state=1
+                                                              stratify=trainY_input)
 # Luodaan vielä erillinen testijoukko
 validX, testX, validY_input, testY_input = train_test_split(validX,
                                                             validY_input,
-                                                            test_size=0.1,
-                                                            random_state=1)
+                                                            test_size=0.33,
+                                                            random_state=1
+                                                            stratify=validY_input)
 
-#%% Complex model 
+#%% Model 1
 # Överi. Hieman muokattu versio introkurssin cifar10-verkosta. 
 # Saavuttaa ~99% validation accuracyn. Ei cross-validaatiota, joten mahd. overfittaa.
 dropout = 0.2
@@ -182,7 +187,7 @@ print(f"Running {epochs} epochs with batch size of {batch_size} and learning rat
 opt = tf.optimizers.Adam(lr=learning_rate)
 
 # Keskeyttää fitin, jos validation accuracy ei parane 10 epochiin.
-callback = EarlyStopping(monitor='val_accuracy', patience=20, 
+callback = EarlyStopping(monitor='val_accuracy', patience=10, 
                          restore_best_weights=True, mode="max")
 model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 
@@ -190,7 +195,7 @@ model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy
 idg = ImageDataGenerator(width_shift_range=0.1, 
                          height_shift_range=0.1, 
                          horizontal_flip=False,
-                         rotation_range=10,
+                         rotation_range=1, #Pienemmällä arvolla toimi paremmin
                          zoom_range=0.1,
                          fill_mode='nearest')
 itd = idg.flow(trainX, trainY_input, batch_size=batch_size)
@@ -264,14 +269,15 @@ print("Accuracy using model.predict: {}".format(acc))
 #%% Mallin tallennus
 model.save("saved_models/<MALLIN NIMI>")
 #%% Mallin ja testidatan nouto (windows)
-model = tf.keras.models.load_model("C:/Users/joona/OneDrive - TUNI.fi/PRML/Assignments/saved_models/cnn_model - 70-30 - valAcc0.994")
-
+model = tf.keras.models.load_model("C:/Users/joona/OneDrive - TUNI.fi/PRML/Assignments/DATA.ML.200_Assignment1/saved_models/model4 - DataAug")
 win_root = r'C:/Users/joona/OneDrive - TUNI.fi/PRML/Assignments/DATA.ML.200_Assignment1/'
 test_data = np.load(win_root + 'test_data.npy').astype("float32") / 255.0
 test_data = np.expand_dims(test_data, axis=3)
 #%% Testidatan muokkaus ja ennustus
 y_pred = np.argmax(model.predict(test_data), axis=1)
+print(model.summary())
 pred_labels = y_pred+np.ones(y_pred.shape, dtype=int) 
+plt.hist(pred_labels, np.arange(1, 12)) # Tällä voi hyvin tarkastaa, miten ennusteet jakautuvat.
 #%% kilpailutiedoston muodostaminen
 with open("sample_submission.csv", "w") as fp: 
     fp.write("Id,Category\n") 
