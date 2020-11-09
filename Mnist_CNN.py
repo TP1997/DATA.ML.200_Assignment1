@@ -1,4 +1,4 @@
-#Importit
+#Importit ja funktiot
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -13,7 +13,29 @@ from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from skimage.transform import rescale, resize, downscale_local_mean
 
+
+# Etsi numeron kuvasta, leikkaa sen ja venyttää haluttuun kokoon
+# Limit antaa rajan sille, mitä arvoa tummemmat pikselit asetetaan nollaan.
+def center_images(images, limit=1, target_size = (28, 28)):
+  new_images = np.zeros((len(images),) + target_size)
+  for i in range(len(images)):
+    if i in np.arange(10000, 60001, 10000):
+      print(i)
+    image = images[i]
+    image[image<limit] = 0
+    columns = np.sum(image, axis=0)
+    rows = np.sum(image, axis=1)
+    top_row = np.argmax(rows>0)
+    bottom_row = len(rows)-np.argmax(np.flip(rows)>0)
+    left_col = np.argmax(columns>0)
+    right_col = len(columns)-np.argmax(np.flip(columns)>0)
+    cropped_image = image[top_row:bottom_row, left_col:right_col]
+    image_resized = resize(cropped_image, target_size,
+                        anti_aliasing=True)
+    new_images[i] = image_resized.astype("float32")/255.0
+  return new_images
 #%%
 # Itse käytän tätä koska Linux.
 root = '/home/tuomas/Python/DATA.ML.200/DATA.ML.200_Assignment1/'
